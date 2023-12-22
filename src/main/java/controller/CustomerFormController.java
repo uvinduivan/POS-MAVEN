@@ -1,14 +1,21 @@
 package controller;
 
+import db.DBConnection;
+import dto.CustomerDto;
+import dto.tm.CustomerTm;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import model.Customer;
-import model.tm.CustomerTm;
+import javafx.stage.Stage;
+import model.CustomerModel;
+import model.impl.CustomerModelImpl;
 
+import java.io.IOException;
 import java.sql.*;
 
 
@@ -44,6 +51,8 @@ public class CustomerFormController {
     @FXML
     private TextField txtSalary;
 
+    private CustomerModel customerModel = new CustomerModelImpl();
+
     public void initialize(){
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -72,9 +81,7 @@ public class CustomerFormController {
         String sql = "SELECT * FROM customer";
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/thogakade1", "root", "1234");
-            Statement stm = connection.createStatement();
+            Statement stm = DBConnection.getInstance().getConnection().createStatement();
             ResultSet result = stm.executeQuery(sql);
 
             while (result.next()){
@@ -93,7 +100,6 @@ public class CustomerFormController {
 
                 tmList.add(c);
             }
-            connection.close();
 
             tblCustomer.setItems(tmList);
         } catch (ClassNotFoundException | SQLException e) {
@@ -101,13 +107,16 @@ public class CustomerFormController {
         }
     }
 
+    private Connection getConnection() {
+        Connection o = null;
+        return o;
+    }
+
     private void deleteCustomer(String id) {
         String sql = "DELETE from customer WHERE id='"+id+"'";
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/thogakade1", "root", "1234");
-            Statement stm = connection.createStatement();
+            Statement stm = DBConnection.getInstance().getConnection().createStatement();
             int result = stm.executeUpdate(sql);
             if (result>0){
                 new Alert(Alert.AlertType.INFORMATION,"Customer Deleted!").show();
@@ -115,7 +124,6 @@ public class CustomerFormController {
             }else{
                 new Alert(Alert.AlertType.ERROR,"Something went wrong!").show();
             }
-            connection.close();
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
@@ -139,7 +147,7 @@ public class CustomerFormController {
 
     @FXML
     void saveButtonOnAction(ActionEvent event) {
-        Customer c = new Customer(txtId.getText(),
+        CustomerDto c = new CustomerDto(txtId.getText(),
                 txtName.getText(),
                 txtAddress.getText(),
                 Double.parseDouble(txtSalary.getText())
@@ -147,16 +155,13 @@ public class CustomerFormController {
         String sql = "INSERT INTO customer VALUES('"+c.getId()+"','"+c.getName()+"','"+c.getAddress()+"',"+c.getSalary()+")";
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/thogakade1", "root", "1234");
-            Statement stm = connection.createStatement();
+            Statement stm = DBConnection.getInstance().getConnection().createStatement();
             int result = stm.executeUpdate(sql);
             if (result>0){
                 new Alert(Alert.AlertType.INFORMATION,"Customer Saved!").show();
                 loadCustomerTable();
                 clearFields();
             }
-            connection.close();
         } catch (SQLIntegrityConstraintViolationException ex){
             new Alert(Alert.AlertType.ERROR,"Duplicate Entry").show();
         } catch (ClassNotFoundException | SQLException e) {
@@ -166,7 +171,7 @@ public class CustomerFormController {
 
     @FXML
     void updateButtonOnAction(ActionEvent event) {
-        Customer c = new Customer(txtId.getText(),
+        CustomerDto c = new CustomerDto(txtId.getText(),
                 txtName.getText(),
                 txtAddress.getText(),
                 Double.parseDouble(txtSalary.getText())
@@ -174,19 +179,21 @@ public class CustomerFormController {
         String sql = "UPDATE customer SET name='"+c.getName()+"', address='"+c.getAddress()+"', salary="+c.getSalary()+" WHERE id='"+c.getId()+"'";
 
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/thogakade1", "root", "1234");
-            Statement stm = connection.createStatement();
+            Statement stm = DBConnection.getInstance().getConnection().createStatement();
             int result = stm.executeUpdate(sql);
             if (result>0){
                 new Alert(Alert.AlertType.INFORMATION,"Customer "+c.getId()+" Updated!").show();
                 loadCustomerTable();
                 clearFields();
             }
-            connection.close();
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
     }
 
+    public void backButtonOnAction(ActionEvent actionEvent) throws IOException {
+        Stage stage=(Stage) tblCustomer.getScene().getWindow();
+        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/View/dashBoardForm.fxml"))));
+        stage.show();
+    }
 }

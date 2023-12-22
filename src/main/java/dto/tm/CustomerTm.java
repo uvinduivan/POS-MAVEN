@@ -1,8 +1,9 @@
-package model.tm;
+package dto.tm;
 
 import javafx.scene.control.Button;
 
 public class CustomerTm {
+
     private String id;
     private String name;
     private String address;
