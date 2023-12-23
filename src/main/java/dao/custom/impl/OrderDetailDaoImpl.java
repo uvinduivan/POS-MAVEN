@@ -1,14 +1,14 @@
-package model.impl;
+package dao.custom.impl;
 
 import db.DBConnection;
 import dto.OrderDetailDto;
-import model.OrderDetailModel;
+import dao.custom.OrderDetailDao;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-public class OrderDetailModelImpl implements OrderDetailModel {
+public class OrderDetailDaoImpl implements OrderDetailDao {
     @Override
     public boolean saveOrderDetails(List<OrderDetailDto> list) throws SQLException, ClassNotFoundException {
         String sql = "INSERT INTO orderdetail VALUES(?,?,?,?)";

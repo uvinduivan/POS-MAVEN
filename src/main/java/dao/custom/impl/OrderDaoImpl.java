@@ -1,19 +1,18 @@
-package model.impl;
+package dao.custom.impl;
 
 import db.DBConnection;
-import dto.ItemDto;
 import dto.OrderDto;
-import model.OrderDetailModel;
-import model.OrderModel;
+import dao.custom.OrderDetailDao;
+import dao.custom.OrderDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
-public class OrderModelImpl implements OrderModel {
-    private OrderDetailModel orderDetailModel = new OrderDetailModelImpl();
+public class OrderDaoImpl implements OrderDao {
+    private OrderDetailDao orderDetailDao = new OrderDetailDaoImpl();
+    @Override
     public boolean saveOrder(OrderDto dto) throws SQLException, ClassNotFoundException {
         Connection connection = null;
         try {
@@ -27,7 +26,7 @@ public class OrderModelImpl implements OrderModel {
 
             if (pstm.executeUpdate() > 0) {
 
-                boolean isDetailsSaved = orderDetailModel.saveOrderDetails(dto.getList());
+                boolean isDetailsSaved = orderDetailDao.saveOrderDetails(dto.getList());
                 if (isDetailsSaved) {
                     connection.commit();
                     return true;
@@ -42,6 +41,7 @@ public class OrderModelImpl implements OrderModel {
         return false;
     }
 
+    @Override
     public OrderDto getLastOrder() throws SQLException, ClassNotFoundException {
         String sql = "SELECT * FROM orders ORDER BY id DESC LIMIT 1";
         PreparedStatement pstm = DBConnection.getInstance().getConnection().prepareStatement(sql);
@@ -54,21 +54,6 @@ public class OrderModelImpl implements OrderModel {
                     null
             );
         }
-        return null;
-    }
-
-    @Override
-    public boolean saveItem(ItemDto dto) {
-        return false;
-    }
-
-    @Override
-    public boolean updateItem(ItemDto dto) {
-        return false;
-    }
-
-    @Override
-    public List<ItemDto> allItems() {
         return null;
     }
 }
