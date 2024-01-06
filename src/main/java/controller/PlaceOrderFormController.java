@@ -1,7 +1,13 @@
 package controller;
 
+import bo.custom.CustomerBo;
+import bo.custom.impl.CustomerBoImpl;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import dao.custom.ItemDao;
+import dao.custom.OrderDao;
+import dao.custom.impl.ItemDaoImpl;
+import dao.custom.impl.OrderDaoImpl;
 import dto.CustomerDto;
 import dto.ItemDto;
 import dto.OrderDetailDto;
@@ -16,12 +22,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.stage.Stage;
-import dao.custom.CustomerDao;
-import dao.custom.ItemDao;
-import dao.custom.OrderDao;
-import dao.custom.impl.CustomerDaoImpl;
-import dao.custom.impl.ItemDaoImpl;
-import dao.custom.impl.OrderDaoImpl;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -67,7 +67,7 @@ public class PlaceOrderFormController {
     @FXML
     private Label lblTotal;
 
-    private CustomerDao customerDao = new CustomerDaoImpl();
+    private CustomerBo<CustomerDto> customerBo= new CustomerBoImpl();
     private ItemDao itemDao = new ItemDaoImpl();
     private List<CustomerDto> customers;
     private List<ItemDto> items;
@@ -84,7 +84,7 @@ public class PlaceOrderFormController {
         colOption.setCellValueFactory(new TreeItemPropertyValueFactory<>("btn"));
 
         try {
-            customers = CustomerDao.allCustomers();
+            customers = customerBo.allCustomers();
             items = ItemDao.allItems();
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
