@@ -1,7 +1,8 @@
 package controller;
 
+import bo.BoFactory;
 import bo.custom.CustomerBo;
-import bo.custom.impl.CustomerBoImpl;
+import dao.util.BoType;
 import dto.CustomerDto;
 import dto.tm.CustomerTm;
 import javafx.collections.FXCollections;
@@ -52,7 +53,7 @@ public class CustomerFormController {
     @FXML
     private TextField txtSalary;
 
-    private CustomerBo customerBo = new CustomerBoImpl();
+    private CustomerBo customerBo = BoFactory.getInstance().getBo(BoType.CUSTOMER);
 
     public void initialize(){
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
