@@ -1,9 +1,9 @@
 package controller;
 
 import bo.custom.CustomerBo;
+import bo.custom.OrderBo;
 import bo.custom.impl.CustomerBoImpl;
-import com.jfoenix.controls.RecursiveTreeItem;
-import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import bo.custom.impl.OrderBoImpl;
 import dao.custom.ItemDao;
 import dao.custom.OrderDao;
 import dao.custom.impl.ItemDaoImpl;
@@ -68,6 +68,7 @@ public class PlaceOrderFormController {
     private Label lblTotal;
 
     private CustomerBo customerBo= new CustomerBoImpl();
+    private OrderBo orderBo = new OrderBoImpl();
     private ItemDao itemDao = new ItemDaoImpl();
     private List<CustomerDto> customers;
     private List<ItemDto> items;
@@ -86,12 +87,14 @@ public class PlaceOrderFormController {
         try {
             customers = customerBo.allCustomers();
             items = ItemDao.allItems();
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e){
             e.printStackTrace();
         }
 
-        loadCustomerIds();
-        loadItemCodes();
+        if (items != null && customers != null) { // Null check added here
+            loadCustomerIds();
+            loadItemCodes();
+        }
 
         cmbCustId.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
             for (CustomerDto dto:customers) {
@@ -114,41 +117,37 @@ public class PlaceOrderFormController {
     }
 
     private void setOrderId() {
-        try {
-            String id = orderDao.getLastOrder().getOrderId();
-            if (id!=null){
-                int num = Integer.parseInt(id.split("[D]")[1]);
-                num++;
-                lblOrderId.setText(String.format("D%03d",num));
-            }else{
-                lblOrderId.setText("D001");
+        if (lblOrderId != null) {  // Check if lblOrderId is initialized
+            try {
+                lblOrderId.setText(orderBo.generateId());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        } else {
+            System.out.println("lblOrderId is null!");
         }
-
     }
 
     private void loadItemCodes() {
-        ObservableList list = FXCollections.observableArrayList();
-
-        for (ItemDto dto:items) {
-            list.add(dto.getCode());
+        if (items != null) { // Null check added here
+            ObservableList list = FXCollections.observableArrayList();
+            for (ItemDto dto : items) {
+                list.add(dto.getCode());
+            }
+            cmbItemCode.setItems(list);
         }
-
-        cmbItemCode.setItems(list);
     }
 
     private void loadCustomerIds() {
-        ObservableList list = FXCollections.observableArrayList();
-
-        for (CustomerDto dto:customers) {
-            list.add(dto.getId());
+        if (customers != null) { // Null check added here
+            ObservableList list = FXCollections.observableArrayList();
+            for (CustomerDto dto : customers) {
+                list.add(dto.getId());
+            }
+            cmbCustId.setItems(list);
         }
-
-        cmbCustId.setItems(list);
     }
 
     @FXML
@@ -195,7 +194,7 @@ public class PlaceOrderFormController {
 
         lblTotal.setText(String.format("%.2f",total));
 
-        TreeItem treeItem = new RecursiveTreeItem<>(tmList, RecursiveTreeObject::getChildren);
+
     }
 
     public void orderButtonOnAction(ActionEvent actionEvent) {
@@ -218,7 +217,7 @@ public class PlaceOrderFormController {
 
 
         try {
-            boolean isSaved = orderDao.saveOrder(dto);
+            boolean isSaved = orderBo.saveOrder(dto);
             if (isSaved){
                 new Alert(Alert.AlertType.INFORMATION, "Order Saved!").show();
                 setOrderId();

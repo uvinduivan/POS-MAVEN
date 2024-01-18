@@ -6,54 +6,22 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@ToString
-
-public class itemTm{
+public class itemTm {
     private String code;
     private String description;
     private Double unitPrice;
     private int qtyOnHand;
+    private Button btn;  // Added Button field
 
-    public itemTm(String code, String description, Double unitPrice, int qtyOnHand, Button btn) {
+    // Constructor without Button
+    public itemTm(String code, String description, Double unitPrice, int qtyOnHand) {
         this.code = code;
         this.description = description;
         this.unitPrice = unitPrice;
         this.qtyOnHand = qtyOnHand;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
-    }
-
-    public void setQtyOnHand(int qtyOnHand) {
-        this.qtyOnHand = qtyOnHand;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public int getQtyOnHand() {
-        return qtyOnHand;
-    }
-
+    // Override toString method
     @Override
     public String toString() {
         return "itemTm{" +
@@ -61,6 +29,7 @@ public class itemTm{
                 ", description='" + description + '\'' +
                 ", unitPrice=" + unitPrice +
                 ", qtyOnHand=" + qtyOnHand +
+                ", btn=" + btn +  // Added btn field to toString
                 '}';
     }
 }
